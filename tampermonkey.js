@@ -91,9 +91,25 @@
                         }
                     }
                 };
-                removeReelsDiv();
 
-                setInterval(removeReelsDiv, 1000);
+                // see if there any more shorts, if not, stop the interval
+                let checkForMoreShorts = () => {
+                    let links = document.getElementsByTagName("a");
+                    for (let i = 0; i < links.length; i++) {
+                        if (links[i].href.includes("/shorts/")) {
+                            return true;
+                        }
+                    }
+                    return false;
+                };
+
+                setInterval(() => {
+                    if (!checkForMoreShorts()) {
+                        clearInterval();
+                    } else {
+                        removeReelsDiv();
+                    }
+                }, 1000);
             }
         } catch (e) {
             console.error("Error initializing blocker:", e);
