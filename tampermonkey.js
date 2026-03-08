@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name         Block Instagram Reels & YouTube Shorts
 // @namespace    http://tampermonkey.net/
-// @version      21.0
-// @description  Block Instagram Reels and YouTube Shorts
-// @author       Ryu
+// @version      2.0
+// @description  Block Instagram Reels and YouTube Shorts with confirmation page
+// @author       You
 // @match        https://www.instagram.com/*
 // @match        https://instagram.com/*
 // @match        https://www.youtube.com/*
 // @match        https://youtube.com/*
+// @icon         data:image/gif;base64,R0lGODlhAQABAAAAACw=
 // @grant        none
 // @run-at       document-start
 // ==/UserScript==
@@ -60,6 +61,39 @@
                 window.location.pathname.startsWith("/reels")
             ) {
                 hidePage();
+            } else if (
+                window.location.hostname === "www.instagram.com" ||
+                window.location.hostname === "instagram.com"
+            ) {
+                // block all a hrefs containing /reels
+                document.addEventListener(
+                    "click",
+                    (e) => {
+                        const target = e.target.closest("a");
+                        if (target && target.href.includes("/reels/")) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log("Reels navigation blocked");
+                        }
+                    },
+                    true,
+                );
+            } else if (
+                window.location.hostname === "www.youtube.com" ||
+                window.location.hostname === "youtube.com"
+            ) {
+                // remove the a tags containing /shorts in the href
+                let removeReelsDiv = () => {
+                    let links = document.getElementsByTagName("a");
+                    for (let i = links.length - 1; i >= 0; i--) {
+                        if (links[i].href.includes("/shorts/")) {
+                            links[i].parentElement.removeChild(links[i]);
+                        }
+                    }
+                };
+                removeReelsDiv();
+
+                setInterval(removeReelsDiv, 1000);
             }
         } catch (e) {
             console.error("Error initializing blocker:", e);
@@ -73,5 +107,5 @@
         init();
     }
 
-    console.log("Reels & Shorts Blocker loaded");
+    console.log("✅ Reels & Shorts Blocker loaded");
 })();
